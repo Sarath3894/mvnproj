@@ -1,81 +1,47 @@
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-feature android:name="android.hardware.camera" />
-<uses-feature android:name="android.hardware.camera.autofocus" />
-<uses-feature android:glEsVersion="0x00020000" android:required="true" />
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamPanel;
+import com.github.sarxos.webcam.ds.buildin.WebcamDefaultDriver;
 
-<application>
-    ...
-    <activity android:name=".VideoCallActivity" />
-</application>
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class VideoCallActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class VideoCallingApp extends JFrame {
 
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
+    private final Webcam webcam;
+    private final WebcamPanel webcamPanel;
 
-    private SurfaceView surfaceView;
-    private SurfaceHolder surfaceHolder;
+    public VideoCallingApp() {
+        super("Video Calling App");
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_call);
+        // Initialize webcam
+        Webcam.setDriver(new WebcamDefaultDriver());
+        webcam = Webcam.getDefault();
+        webcamPanel = new WebcamPanel(webcam);
+        webcamPanel.setFPSDisplayed(true);
 
-        surfaceView = findViewById(R.id.surfaceView);
-        surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
+        // Set up the UI
+        setLayout(new BorderLayout());
+        add(webcamPanel, BorderLayout.CENTER);
 
-        // Request camera permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
-        }
-    }
-
-    @Override
-    public void surfaceCreated(@NonNull SurfaceHolder holder) {
-        // Initialize camera and start video streaming
-        // Implement camera and streaming logic here
-    }
-
-    @Override
-    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-        // Handle surface changes, if needed
-    }
-
-    @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-        // Release camera and stop video streaming
-    }
-
-    // Handle permission request results
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, initialize camera
-                // Implement camera initialization logic here
-            } else {
-                // Permission denied, handle accordingly
+        // Handle window close event
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                webcam.close();
+                System.exit(0);
             }
-        }
+        });
+
+        setSize(640, 480);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new VideoCallingApp());
     }
 }
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</RelativeLayout>
 
