@@ -1,53 +1,81 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Hello Java EE Continuous Delivery!</title>
-    </head>
-    <body>
- <table border = "4" bordercolor = "pink" bgcolor = "green">
-         <tr>
-            <th>Column 1</th>
-            <th>Column 2</th>
-            <th>Column 3</th>
-         </tr>
-         <tr>
-            <td rowspan = "2">Row 1 Cell 1</td>
-            <td>Row 1 Cell 2</td>
-            <td>Row 1 Cell 3</td>
-         </tr>
-         <tr>
-            <td>Row 2 Cell 2</td>
-            <td>Row 2 Cell 3</td>
-         </tr>
-         <tr>
-            <td colspan = "3">Row 3 Cell 1</td>
-         </tr>
-      </table>
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-feature android:name="android.hardware.camera" />
+<uses-feature android:name="android.hardware.camera.autofocus" />
+<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 
-      <h1> $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ </h1>
-<table width="50%" bgcolor="red" align="center" border="2">
+<application>
+    ...
+    <activity android:name=".VideoCallActivity" />
+</application>
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-<tr>
-<td colspan=2><center><font size=4><b>HTML Login Page</b></font></center></td>
-</tr>
+public class VideoCallActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
-<tr>
-<td>Username:</td>
-<td><input type="text" size=25 name="userid"></td>
-</tr>
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
 
-<tr>
-<td>Password:</td>
-<td><input type="Password" size=25 name="pwd"></td>
-</tr>
+    private SurfaceView surfaceView;
+    private SurfaceHolder surfaceHolder;
 
-<tr>
-<td ><input type="Reset"></td>
-<td><input type="submit" onclick="return check(this.form)" value="Login"></td>
-</tr>
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_video_call);
 
-</table>
-    </body>
-</html>
+        surfaceView = findViewById(R.id.surfaceView);
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.addCallback(this);
+
+        // Request camera permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
+        // Initialize camera and start video streaming
+        // Implement camera and streaming logic here
+    }
+
+    @Override
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+        // Handle surface changes, if needed
+    }
+
+    @Override
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+        // Release camera and stop video streaming
+    }
+
+    // Handle permission request results
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, initialize camera
+                // Implement camera initialization logic here
+            } else {
+                // Permission denied, handle accordingly
+            }
+        }
+    }
+}
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</RelativeLayout>
+
